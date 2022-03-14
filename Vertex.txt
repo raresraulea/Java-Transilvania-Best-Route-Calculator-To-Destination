@@ -1,0 +1,41 @@
+package com.company;
+
+import java.awt.*;
+
+public class Vertex {
+    Color color;
+    Vertex predecessor;
+
+    public double getDistance() {
+        return distance;
+    }
+
+    int distance;
+    double distance2;
+    int discovered; //for DFS
+    int finalized; //for DFS
+    int x;
+    int y;
+    char label;
+    String name;
+    int index;
+    static int count = 0;
+    static int infinite = 100;
+    public Vertex(int i) {
+        index = i;
+        color = Color.white;
+        distance = infinite;
+        distance2 = infinite;
+        predecessor = null;
+    }
+    public Vertex(Oras o) {
+        index = count++;
+        x = o.x;
+        y = o.y;
+        name = o.name;
+        color = Color.white;
+        distance = infinite;
+        distance2 = infinite;
+        predecessor = null;
+    }
+}

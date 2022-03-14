@@ -1,0 +1,208 @@
+package com.company;
+
+import java.awt.*;
+import java.util.*;
+
+public class Graph {
+    int maxVerts = 20;
+    int nVerts = 0;
+    ArrayList<Vertex> vertexlist = new ArrayList<>();
+    ArrayList<Distance> distances = new ArrayList<>();
+    int[][] edges = new int[maxVerts][maxVerts];
+
+    public Graph() {
+        for(int i =0; i < edges.length; i++)
+            for(int j = 0; j < edges[0].length; j++)
+                edges[i][j] = 0;
+    }
+    public Graph(int nVerts) {
+        this.nVerts = nVerts;
+        for(int i =0; i < edges.length; i++)
+            for(int j = 0; j < edges[0].length; j++)
+                edges[i][j] = 0;
+    }
+    public void addEdge(int u, int v)
+    {
+        edges[u][v] = 1;
+        edges[v][u] = 1;
+    }
+    public void addEdge(Vertex v1, Vertex v2)
+    {
+        distances.add(new Distance(v1,v2));
+    }
+    public void addEdge(int u, int v, int w)
+    {
+        edges[u][v] = w;
+        edges[v][u] = w;
+    }
+    public void addVertex(int i)
+    {
+        vertexlist.add(new Vertex(i));
+        nVerts++;
+    }
+    public void addVertex(Oras oras)
+    {
+        vertexlist.add(new Vertex(oras));
+        nVerts++;
+    }
+
+
+    public void BFS(int source)
+    {
+        for(int i = 0; i < nVerts; i++)
+        {
+            vertexlist.get(i).color = Color.white;
+            vertexlist.get(i).distance = Vertex.infinite;
+            vertexlist.get(i).predecessor = null; //sau el insusi
+        }
+        LinkedList<Vertex> queue = new LinkedList<>();
+        vertexlist.get(source).distance = 0;
+        vertexlist.get(source).color = Color.gray;
+        queue.add(vertexlist.get(source));
+        while(!queue.isEmpty())
+        {
+            Vertex currentVertex = queue.getFirst();
+            System.out.print(currentVertex.index + " ");
+            for(int i = 0; i < nVerts; i++)
+            {
+                Vertex neighbour = vertexlist.get(i);
+                if(edges[currentVertex.index][neighbour.index] != 0 && neighbour.color == Color.white)
+                {
+                    neighbour.color = Color.gray;
+                    neighbour.distance = currentVertex.distance + 1;
+                    neighbour.predecessor = currentVertex;
+                    queue.add(neighbour);
+                }
+            }
+            queue.removeFirst();
+            currentVertex.color = Color.black;
+        }
+
+    }
+    public void DFS(int source)
+    {
+        for(int i =0; i < nVerts; i++)
+        {
+            vertexlist.get(i).color = Color.white;
+            vertexlist.get(i).predecessor = null;
+        }
+        DFSUtil(source);
+    }
+    void DFSUtil(int source)
+    {
+        Vertex currentVertex = vertexlist.get(source);
+        currentVertex.color= Color.gray;
+        System.out.print(currentVertex.index + " ");
+
+        for (int i = 0; i < nVerts; i++) {
+            Vertex neighbour = vertexlist.get(i);
+            if(edges[currentVertex.index][neighbour.index] != 0 && neighbour.color == Color.white)
+            {
+                neighbour.predecessor = currentVertex;
+                DFSUtil(neighbour.index);
+            }
+        }
+        currentVertex.color = Color.black;
+    }
+
+    void Dijkstra(int source)
+    {
+        for(int i = 0; i < nVerts; i++)
+        {
+            vertexlist.get(i).distance = Vertex.infinite;
+            vertexlist.get(i).predecessor = null;
+        }
+        Vertex sourceVertex = vertexlist.get(0);
+        sourceVertex.distance = 0;
+
+        PriorityQueue<Vertex> queue = new PriorityQueue<>(new Comparator<Vertex>() {
+            @Override
+            public int compare(Vertex o1, Vertex o2) {
+                return o1.distance - o2.distance;
+            }
+        });
+        vertexlist.forEach(v->queue.add(v));
+
+        while(!queue.isEmpty())
+        {
+            Vertex currentVertex = queue.poll();
+            for(int i = 0; i < nVerts; i++)
+            {
+                Vertex neighbour = vertexlist.get(i);
+                int distSToNThroughCurrentVertex = currentVertex.distance + edges[currentVertex.index][neighbour.index];
+                if(edges[currentVertex.index][neighbour.index]!=0 && distSToNThroughCurrentVertex < neighbour.distance)
+                {
+                    System.out.println("E mai scurt din " + currentVertex.index + " pana in " + neighbour.index
+                    + " dist veche: " + neighbour.distance + " dist noua " + distSToNThroughCurrentVertex);
+                    neighbour.distance = distSToNThroughCurrentVertex;
+                    neighbour.predecessor = currentVertex;
+                }
+            }
+        }
+        vertexlist.forEach(v -> System.out.println(v.index + ": " + v.distance));
+    }
+    void Dijkstra2(int source)
+    {
+        for(int i = 0; i < nVerts; i++)
+        {
+            vertexlist.get(i).distance2 = Vertex.infinite;
+            vertexlist.get(i).predecessor = null;
+        }
+        Vertex sourceVertex = vertexlist.get(0);
+        sourceVertex.distance2 = 0;
+
+        PriorityQueue<Vertex> queue = new PriorityQueue<>(new Comparator<Vertex>() {
+            @Override
+            public int compare(Vertex o1, Vertex o2) {
+                if(o1.distance2 < o2.distance2) return -1;
+                if(o1.distance2 > o2.distance2) return 1;
+                return 0;
+            }
+        });
+        vertexlist.forEach(v->queue.add(v));
+
+        while(!queue.isEmpty())
+        {
+            Vertex currentVertex = queue.poll();
+
+            for(int i = 0; i < nVerts; i++)
+            {
+                Vertex neighbour = vertexlist.get(i);
+                int count = 0;
+                for (int j = 0; j < distances.size(); j++) {
+                     if((distances.get(j).oras1.name.compareTo(currentVertex.name) == 0 && distances.get(j).oras2.name.compareTo(neighbour.name) ==0)
+                     || (distances.get(j).oras1.name.compareTo(neighbour.name) == 0 && distances.get(j).oras2.name.compareTo(currentVertex.name) ==0))
+                         count++;
+                }
+
+                double distSToNThroughCurrentVertex = currentVertex.distance2 + euclidianDistance(currentVertex, neighbour);
+                if(count >0  && distSToNThroughCurrentVertex < neighbour.distance2)
+                {
+                    System.out.println("E mai scurt din " + currentVertex.name + " pana in " + neighbour.name
+                            + " dist veche: " + neighbour.distance2 + " dist noua " + distSToNThroughCurrentVertex);
+                    neighbour.distance2 = distSToNThroughCurrentVertex;
+                    neighbour.predecessor = currentVertex;
+                }
+            }
+        }
+        vertexlist.forEach(v -> System.out.println(v.name + ": " + v.distance2));
+    }
+    double euclidianDistance(Vertex a, Vertex b)
+    {
+        return Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y - b.y)*(a.y-b.y));
+    }
+    ArrayList<Vertex> drum(Vertex source, Vertex destination)
+    {
+        ArrayList<Vertex> ret  = new ArrayList<>();
+        Vertex iterator = vertexlist.get(destination.index);
+        ret.add(iterator);
+        while(iterator.predecessor != null) {
+            ret.add(iterator.predecessor);
+            iterator = iterator.predecessor;
+        }
+        Collections.reverse(ret);
+        return ret;
+    }
+
+
+}

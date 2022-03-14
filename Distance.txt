@@ -1,0 +1,18 @@
+package com.company;
+
+public class Distance {
+    Vertex oras1;
+    Vertex oras2;
+    double distance;
+
+    public Distance(Vertex oras1, Vertex oras2) {
+        this.oras1 = oras1;
+        this.oras2 = oras2;
+        distance = euclidianDistance(oras1, oras2);
+    }
+
+    double euclidianDistance(Vertex a, Vertex b)
+    {
+        return Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y - b.y)*(a.y-b.y));
+    }
+}
